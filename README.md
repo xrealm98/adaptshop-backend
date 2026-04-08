@@ -1,6 +1,6 @@
 # AdaptShop - Backend
 
-Backend de AdaptShop, una plataforma de comercio electrónico genérica y configurable. Desarrollado con Laravel 12 y PHP 8.4, expone una API REST consumida por el frontend. Aplicación desarrollada para el trabajo final del máster de Desarrollo de Sitios y Aplicaciones Web.
+Backend de AdaptShop, una plataforma de comercio electrónico genérica y configurable. Desarrollado con Laravel 12 y PHP 8.4, expone una API REST consumida por el frontend. Aplicación desarrollada para el trabajo final del máster de Desarrollo de Sitios y Aplicaciones Web de la UOC.
 
 ## Tecnologías utilizadas
 
