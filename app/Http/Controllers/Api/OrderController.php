@@ -12,12 +12,15 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // Cargamos los pedidos del usuario encadenando la relación del pedido con los productos.
-        $orders = Order::with('items.product')->where('user_id', request()->user()->id)->get();
+        $orders = Order::with(['items.product', 'user']);
+        if ($request->user()->role !== 'admin') {
+            $orders->where('user_id', $request->user()->id);
+        }
 
-        return response()->json($orders);
+        return response()->json($orders->orderBy('created_at', 'desc')->get());
     }
 
     /**
@@ -91,12 +94,12 @@ class OrderController extends Controller
     public function show(Request $request, Order $order)
     {
         // Verificar que el pedido pertenece al usuario que lo solicita
-        if ($order->user_id !== $request->user()->id) {
+        if ($request->user()->role !== 'admin' && $order->user_id !== $request->user()->id) {
             return response()->json([
                 'message' => 'No tienes permiso para ver este pedido'
             ], 403);
         }
-        return response()->json($order->load('items.product'));
+        return response()->json($order->load('items.product', 'user'));
     }
 
     /**
@@ -104,13 +107,18 @@ class OrderController extends Controller
      */
     public function updateStatus(Request $request, Order $order)
     {
-        $request->validate([
-            'status' => 'required|in:pending,paid,shipped,delivered,cancelled'
+        $validated = $request->validate([
+            'status' => 'sometimes|in:pending,paid,shipped,delivered,cancelled',
+            'shipping_street' => 'sometimes|string',
+            'shipping_city' => 'sometimes|string',
+            'shipping_province' => 'sometimes|string',
+            'shipping_postal_code' => 'sometimes|string',
+            'shipping_country' => 'sometimes|string',
         ]);
 
-        $order->update(['status' => $request->status]);
+        $order->update($validated);
 
-        return response()->json($order->load('items.product'));
+        return response()->json($order->load(['items.product', 'user']));
     }
 
     /**

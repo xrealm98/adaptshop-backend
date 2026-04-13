@@ -53,6 +53,12 @@ class UserController extends Controller
             'is_blocked' => 'sometimes|boolean',
         ]);
 
+        if ($request->has('role') && $user->id === $request->user()->id && $request->role !== 'admin') {
+            return response()->json([
+                'message' => 'No puedes quitarte el rol de administrador a ti mismo.'
+            ], 403);
+        }
+
         $user->update($validated);
 
         return response()->json($user);
