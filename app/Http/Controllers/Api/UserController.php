@@ -82,10 +82,9 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return response()->json([
-            'message' => 'Perfil actualizado con éxito',
-            'user' => $user->makeHidden(['role', 'is_blocked', 'created_at', 'updated_at'])
-        ]);
+        return response()->json(
+            $user->makeHidden(['role', 'is_blocked', 'created_at', 'updated_at'])
+        );
     }
 
     /**
