@@ -11,9 +11,31 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Product::with('category')->get());
+        $query = Product::with('category')->where('is_active', true);
+
+        if ($request->has('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->has('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->has('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        if ($request->has('latest')) {
+            $query->latest();
+        }
+
+        if ($request->has('limit')) {
+            $query->limit($request->limit);
+        }
+
+        return response()->json($query->get());
     }
 
     /**
