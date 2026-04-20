@@ -15,6 +15,10 @@ class ProductController extends Controller
     {
         $query = Product::with('category')->where('is_active', true);
 
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
         }
@@ -32,10 +36,18 @@ class ProductController extends Controller
         }
 
         if ($request->has('limit')) {
-            $query->limit($request->limit);
+            return response()->json($query->limit($request->limit)->get());
         }
+        $perPage = $request->input('per_page', 12);
 
-        return response()->json($query->get());
+        return response()->json($query->paginate($perPage));
+    }
+
+    public function getProductsIds(Request $request)
+    {
+        $request->validate(['ids' => 'required|array']);
+        $products = Product::whereIn('id', $request->ids)->get();
+        return response()->json($products);
     }
 
     /**
