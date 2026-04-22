@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
     public function login(Request $request)
     {
         $request->validate([
@@ -54,7 +59,8 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
+        $token = $request->user()->currentAccessToken()->delete();
+
         return response()->json([
             'message' => 'Sesión cerrada correctamente'
         ]);

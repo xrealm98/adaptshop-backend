@@ -53,6 +53,12 @@ class UserController extends Controller
             'is_blocked' => 'sometimes|boolean',
         ]);
 
+        if ($request->has('role') && $user->id === $request->user()->id && $request->role !== 'admin') {
+            return response()->json([
+                'message' => 'No puedes quitarte el rol de administrador a ti mismo.'
+            ], 403);
+        }
+
         $user->update($validated);
 
         return response()->json($user);
@@ -76,10 +82,9 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return response()->json([
-            'message' => 'Perfil actualizado con éxito',
-            'user' => $user->makeHidden(['role', 'is_blocked', 'created_at', 'updated_at'])
-        ]);
+        return response()->json(
+            $user->makeHidden(['role', 'is_blocked', 'created_at', 'updated_at'])
+        );
     }
 
     /**
