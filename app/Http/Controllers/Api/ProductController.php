@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -43,6 +44,7 @@ class ProductController extends Controller
         return response()->json($query->paginate($perPage));
     }
 
+    // Para verificar la información del producto del frontend y backend
     public function getProductsIds(Request $request)
     {
         $request->validate(['ids' => 'required|array']);
@@ -65,7 +67,15 @@ class ProductController extends Controller
             'image'       => 'nullable|string',
             'is_active'   => 'boolean',
         ]);
+        $fields['slug'] = Str::slug($request->name);
+        $originalSlug = $fields['slug'];
+        $count = 1;
+
+        while (Product::where('slug', $fields['slug'])->exists()) {
+            $fields['slug'] = $originalSlug . '-' . $count++;
+        }
         $product = Product::create($fields);
+
 
         return response()->json($product->load('category'), 201);
     }
@@ -73,9 +83,14 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
+    public function show($identifier)
     {
-        return response()->json($product->load('category'));
+        $product = Product::with('category')
+            ->where('id', $identifier)
+            ->orWhere('slug', $identifier)
+            ->firstOrFail();
+
+        return response()->json($product);
     }
 
     /**
@@ -93,6 +108,18 @@ class ProductController extends Controller
             'image'       => 'nullable|string',
             'is_active'   => 'sometimes|boolean',
         ]);
+
+        if (isset($fields['name'])) {
+            $slug = Str::slug($fields['name']);
+            $originalSlug = $slug;
+            $count = 1;
+
+            while (Product::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
+                $slug = $originalSlug . '-' . $count++;
+            }
+
+            $fields['slug'] = $slug;
+        }
 
         $product->update($fields);
 

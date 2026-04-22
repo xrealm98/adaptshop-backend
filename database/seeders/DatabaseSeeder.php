@@ -40,9 +40,11 @@ class DatabaseSeeder extends Seeder
 
             // Crer 5 productos para categoría
             for ($i = 1; $i <= 5; $i++) {
+                $productName = "Producto $catName $i";
                 Product::create([
                     'category_id' => $category->id,
                     'name' => "Producto $catName $i",
+                    'slug'        => str($productName)->slug(),
                     'details' => "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
                     'description' => "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.",
                     'price' => rand(10, 500),

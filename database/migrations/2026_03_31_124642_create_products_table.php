@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->string('name');
+            $table->string('slug')->unique();
             $table->text('details')->nullable();
             $table->text('description');
             $table->decimal('price', 10, 2);
