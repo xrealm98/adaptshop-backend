@@ -1,6 +1,12 @@
-FROM richarvey/nginx-php-fpm:3.1.6
+FROM serversideup/php:8.4-fpm-nginx
+
+COPY composer.json composer.lock ./
+
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 COPY . .
+
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Image config
 ENV SKIP_COMPOSER 1
