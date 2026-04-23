@@ -1,20 +1,46 @@
-FROM serversideup/php:8.4-fpm-nginx
+FROM php:8.3-fpm
 
+RUN apt-get update && apt-get install -y \
+    nginx \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    libpq-dev \
+    && docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd
+
+
+# Instalar Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Configurar directorio de trabajo
+WORKDIR /var/www/html
+
+# Copiar proyecto
 COPY . .
 
-# Image config
-ENV SKIP_COMPOSER 1
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
 
-# Laravel config
-ENV APP_ENV production
-ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
+# Instalar dependencias PHP
+RUN composer install --no-dev --optimize-autoloader
 
-# Allow composer to run as root
-ENV COMPOSER_ALLOW_SUPERUSER 1
+
+# Permisos
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+
+# Copiar configuración nginx
+COPY conf/nginx/nginx-site.conf /etc/nginx/sites-available/default
+RUN rm -f /etc/nginx/sites-enabled/default && \
+    ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+
+# Script de inicio
+COPY scripts/start.sh /start.sh
+RUN chmod +x /start.sh
+
+EXPOSE 80
 
 CMD ["/start.sh"]

@@ -18,6 +18,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        if (User::count() > 0) {
+            $this->command->info('Seeder already executed...');
+            return;
+        }
 
         User::create([
             'first_name' => 'Admin',
