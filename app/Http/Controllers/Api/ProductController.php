@@ -85,14 +85,15 @@ class ProductController extends Controller
      */
     public function show($identifier)
     {
-        $product = Product::with('category')
-            ->where(function ($query) use ($identifier) {
-                $query->where('id', $identifier)
-                    ->orWhere('slug', $identifier);
-            })
-            ->firstOrFail();
+        $product = Product::with('category');
 
-        return response()->json($product);
+        if (is_numeric($identifier)) {
+            $product = $product->where('id', $identifier);
+        } else {
+            $product = $product->where('slug', $identifier);
+        }
+
+        return response()->json($product->firstOrFail());
     }
 
     /**
