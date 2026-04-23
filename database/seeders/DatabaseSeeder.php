@@ -33,7 +33,19 @@ class DatabaseSeeder extends Seeder
             'city' => 'Madrid',
         ]);
 
-        User::factory(3)->create();
+        $testUsers = [
+            ['first_name' => 'Juan', 'last_name' => 'García', 'email' => 'juan@test.com'],
+            ['first_name' => 'María', 'last_name' => 'López', 'email' => 'maria@test.com'],
+            ['first_name' => 'Carlos', 'last_name' => 'Martín', 'email' => 'carlos@test.com'],
+        ];
+
+        foreach ($testUsers as $userData) {
+            User::create([
+                ...$userData,
+                'password' => Hash::make('12341234'),
+                'role' => 'client',
+            ]);
+        }
 
         $categories = ['Electrónica', 'Ropa', 'Hogar', 'Deportes'];
         foreach ($categories as $catName) {
