@@ -17,7 +17,8 @@ class ProductController extends Controller
         $query = Product::with('category')->where('is_active', true);
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $search = strtolower($request->search);
+            $query->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
         }
 
         if ($request->has('category_id')) {
