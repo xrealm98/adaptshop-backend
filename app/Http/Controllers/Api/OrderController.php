@@ -19,12 +19,20 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         // Cargamos los pedidos del usuario encadenando la relación del pedido con los productos.
-        $orders = Order::with(['items.product', 'user']);
+        $query = Order::with(['items.product', 'user']);
+
         if ($request->user()->role !== 'admin') {
-            $orders->where('user_id', $request->user()->id);
+            $query->where('user_id', $request->user()->id);
+        }
+        $query->orderBy('created_at', 'desc');
+
+        if ($request->hasAny(['page', 'per_page'])) {
+            $perPage = $request->input('per_page', 10);
+
+            return response()->json($query->paginate($perPage));
         }
 
-        return response()->json($orders->orderBy('created_at', 'desc')->get());
+        return response()->json($query->get());
     }
 
     /**
